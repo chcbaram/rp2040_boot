@@ -105,6 +105,8 @@ void apMain(void)
       if (is_retry_update_fw == false)
       {
         is_retry_update_fw = true;
+        bootJumpToFw();
+        
         if (bootUpdateTagVerify() == OK && bootUpdateFw() == OK)
         {
           bootJumpToFw();
