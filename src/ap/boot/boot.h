@@ -10,8 +10,8 @@ void bootInit(void);
 void bootProcessCmd(cmd_t *p_cmd);
 bool bootJumpToFw(void);
 bool bootVerifyFw(void);
-
-
+uint8_t bootUpdateFw(void);
+uint8_t bootUpdateTagVerify(void);
 
 
 #endif

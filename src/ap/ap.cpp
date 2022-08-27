@@ -43,6 +43,8 @@ void apInit(void)
   {
     cmdInit(&cmd_boot);
     cmdOpen(&cmd_boot, _DEF_UART1, 115200);
+
+    logPrintf("BOOT Mode ..\n\n");
   }
   else
   {
@@ -50,19 +52,27 @@ void apInit(void)
 
     cliAdd("info", cliInfo);
     cliAdd("boot", cliBoot);
+
+    logPrintf("CLI Mode ..\n\n");
   }
+
+  logBoot(false);
 }
 
 void apMain(void)
 {
   uint32_t pre_time;
   uint32_t led_time = 100;
+  bool is_retry_update_fw = false;
+  uint32_t retry_pre_time;
+
 
   if (is_boot_mode != true)
   {
     led_time = 50;
   }
 
+  retry_pre_time = millis();
   while(1)
   {
     if (millis()-pre_time >= led_time)
@@ -76,11 +86,30 @@ void apMain(void)
       if (cmdReceivePacket(&cmd_boot) == true)
       {
         bootProcessCmd(&cmd_boot);
+        retry_pre_time = millis();
       }
     }
     else
     {
-      cliMain();
+      if (cliMain() == true)
+      {
+        retry_pre_time = millis();
+      }
+    }
+
+
+    // Firmware Recovery
+    //
+    if (millis()-retry_pre_time >= (15*1000))
+    {
+      if (is_retry_update_fw == false)
+      {
+        is_retry_update_fw = true;
+        if (bootUpdateTagVerify() == OK && bootUpdateFw() == OK)
+        {
+          bootJumpToFw();
+        }
+      }
     }
   }
 }

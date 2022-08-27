@@ -193,6 +193,8 @@ void cliShowPrompt(cli_t *p_cli)
 
 bool cliMain(void)
 {
+  bool ret = false;
+
   if (cli_node.is_open != true)
   {
     return false;
@@ -201,9 +203,11 @@ bool cliMain(void)
   if (uartAvailable(cli_node.ch) > 0)
   {
     cliUpdate(&cli_node, uartRead(cli_node.ch));
+
+    ret = true;
   }
 
-  return true;
+  return ret;
 }
 
 uint32_t cliAvailable(void)
@@ -246,7 +250,7 @@ bool cliUpdate(cli_t *p_cli, uint8_t rx_data)
         line->count = 0;
         line->cursor = 0;
         line->buf[0] = 0;
-        cliShowPrompt(p_cli);
+        cliShowPrompt(p_cli);        
         break;
 
 

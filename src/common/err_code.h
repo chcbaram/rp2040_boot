@@ -14,11 +14,12 @@
 #define ERR_BOOT_FLASH_ERASE          12
 #define ERR_BOOT_WRONG_RANGE          13
 #define ERR_BOOT_FLASH_WRITE          14
-#define ERR_BOOT_BUF_OVF              15
-#define ERR_BOOT_INVALID_FW           16
-#define ERR_BOOT_FW_CRC               17
-#define ERR_BOOT_JUMP_TO_FW           18
-#define ERR_BOOT_INVALID_TAG          19
+#define ERR_BOOT_FLASH_READ           15
+#define ERR_BOOT_BUF_OVF              16
+#define ERR_BOOT_INVALID_FW           17
+#define ERR_BOOT_FW_CRC               18
+#define ERR_BOOT_JUMP_TO_FW           19
+#define ERR_BOOT_INVALID_TAG          20
 
 
 #endif

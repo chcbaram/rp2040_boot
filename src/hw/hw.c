@@ -16,7 +16,15 @@ static const firm_ver_t boot_ver __attribute__((section(".version"))) =
   .name_str     = _DEF_BOARD_NAME,
 };
 
+
+static void tagInfo(void);
+
+
+static const firm_tag_t *p_firm_tag = (firm_tag_t *)FLASH_ADDR_FW_TAG;
 static const firm_ver_t *p_firm_ver = (firm_ver_t *)FLASH_ADDR_FW_VER;
+
+static const firm_tag_t *p_update_tag = (firm_tag_t *)FLASH_ADDR_UPDATE_TAG;
+static const firm_ver_t *p_update_ver = (firm_ver_t *)FLASH_ADDR_UPDATE_VER;
 
 
 
@@ -48,8 +56,42 @@ bool hwInit(void)
   logPrintf("Reset Mode\t\t: %s\r\n", resetGetBootModeMsg());
   logPrintf("Reset Count\t\t: %d\r\n", resetGetCount());
   logPrintf("Boot Ver Addr\t\t: 0x%X\r\n", (int)&boot_ver);
-  logPrintf("\n");
   logPrintf("Firm Ver Addr\t\t: 0x%X\r\n", (int)p_firm_ver);
+  logPrintf("\n");
+
+  tagInfo();
+
+  return true;
+}
+
+void tagInfo(void)
+{
+  if (p_firm_tag->magic_number == TAG_MAGIC_NUMBER)
+  {
+    logPrintf("Tag fw addr \t\t: 0x%X\r\n", p_firm_tag->fw_addr);
+    logPrintf("Tag fw size \t\t: 0x%X\r\n", p_firm_tag->fw_size);
+    logPrintf("Tag fw crc  \t\t: 0x%X\r\n", p_firm_tag->fw_crc);
+  }
+  else
+  {
+    logPrintf("Tag fw   \t\t: Empty\r\n");
+  }  
+  
+  logPrintf("\n");
+
+  if (p_update_tag->magic_number == TAG_MAGIC_NUMBER)
+  {
+    logPrintf("Tag update addr \t: 0x%X\r\n", p_update_tag->fw_addr);
+    logPrintf("Tag update size \t: 0x%X\r\n", p_update_tag->fw_size);
+    logPrintf("Tag update crc  \t: 0x%X\r\n", p_update_tag->fw_crc);
+  }
+  else
+  {
+    logPrintf("Tag update \t\t: Empty\r\n");
+  }  
+
+  logPrintf("\n");
+
   if (p_firm_ver->magic_number == VERSION_MAGIC_NUMBER)
   {
     logPrintf("Firm Name \t\t: %s\r\n", p_firm_ver->name_str);
@@ -59,22 +101,29 @@ bool hwInit(void)
   {
     logPrintf("Firm Name \t\t: Empty\r\n");
     logPrintf("Firm Ver  \t\t: Empty\r\n");
+  }  
+
+
+  if (p_update_ver->magic_number == VERSION_MAGIC_NUMBER)
+  {
+    logPrintf("Update Name \t\t: %s\r\n", p_update_ver->name_str);
+    logPrintf("Update Ver  \t\t: %s\r\n", p_update_ver->version_str);
   }
-
-
-  logBoot(false);
-
-  return true;
+  else
+  {
+    logPrintf("Update Name \t\t: Empty\r\n");
+    logPrintf("Update Ver  \t\t: Empty\r\n");
+  }   
 }
 
 void jumpToFw(void)
 {
-  void (**jump_func)(void) = (void (**)(void))(FLASH_ADDR_FW + 4); 
+  void (**jump_func)(void) = (void (**)(void))(FLASH_ADDR_FW_VECTOR + 4); 
 
 
   bspDeInit();
-  __set_MSP(*(uint32_t *)(FLASH_ADDR_FW));
-  scb_hw->vtor = FLASH_ADDR_FW;
+  __set_MSP(*(uint32_t *)(FLASH_ADDR_FW_VECTOR));
+  scb_hw->vtor = FLASH_ADDR_FW_VECTOR;
 
 
   resetSetBootMode(RESET_MODE_FW);
